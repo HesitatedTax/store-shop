@@ -1,0 +1,38 @@
+<form class="flex flex-col gap-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()" >
+
+  <h2 class="text-2xl font-black text-secondary font-montserrat">
+    Crea un nuevo usuario
+  </h2>
+
+  <div class="flex flex-col gap-3">
+    <label class="label">
+      <span class="label-text text-secondary">Name</span>
+    </label>
+    <input type="text" class="input input-bordered" placeholder="Name" formControlName="name"/>
+
+    <label class="label">
+      <span class="label-text text-secondary">Email</span>
+    </label>
+    <input type="email" class="input input-bordered" placeholder="Email" formControlName="email"   />
+
+    <label class="label">
+      <span class="label-text text-secondary">Password</span>
+    </label>
+    <input type="password" class="input input-bordered" placeholder="Password" formControlName="password"/>
+  </div>
+
+  <button type="submit" class="btn btn-neutral mt-4">
+    Create
+  </button>
+
+</form>
+
+@if (hasError()) {
+
+  <div role="alert" class="alert alert-error animate-fadeIn fixed bottom-5 right-5 w-52">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <span>Verifique la informacion ingresada.</span>
+</div>
+}
