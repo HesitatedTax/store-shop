@@ -22,7 +22,7 @@ export class ProductDetails implements OnInit{
     price: [0, [Validators.required, Validators.min(0)]],
     stock: [0, [Validators.required, Validators.min(0)]],
     sizes: [['']],
-    imgaes: [[]],
+    images: [[]],
     tags: [''],
     gender: ['men', [Validators.required, Validators.pattern(/men|women|kid|unisex/)]],
   });
@@ -36,7 +36,7 @@ export class ProductDetails implements OnInit{
   setFormValue(formLike: Partial<Product>){
     // this.productForm.reset(this.product()as any)
     this.productForm.patchValue(formLike as any)
-    // this.productForm.patchValue({tags: formLike.tags?.join(',') })
+    this.productForm.patchValue({tags: formLike.tags?.join(',') })
   }
 
   onSubmit(){
