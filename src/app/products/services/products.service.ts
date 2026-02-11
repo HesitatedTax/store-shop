@@ -14,7 +14,7 @@ interface Options{
 
 @Injectable({providedIn: 'root'})
 export class ProductsService {
-   
+
     private http = inject (HttpClient);
 
     private productsCache= new Map<string,ProductsResponse>();
@@ -51,6 +51,17 @@ export class ProductsService {
         pipe(
             delay(2000),
              tap((product) =>this.productCache.set(idSlug, product)),
+        )
+    }
+    getProductById(id: string): Observable<Product>{
+      if(this.productCache.has(id)){
+            return of (this.productCache.get(id)!)
+        }
+
+        return this.http.get<Product>(`${baseUrl}/products/${id}`).
+        pipe(
+            delay(2000),
+             tap((product) =>this.productCache.set(id, product)),
         )
     }
 

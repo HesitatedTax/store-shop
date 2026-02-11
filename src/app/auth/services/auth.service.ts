@@ -7,9 +7,6 @@ import { AuthResponse } from '@auth/interfaces/auth-response.interface';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 
-
-
-
 type AuthStatus = 'checking'| 'authenticated'| 'not-authenticated';
 const baseUrl = environment.baseUrl
 
@@ -37,6 +34,7 @@ export class AuthService {
 
   user = computed<User|null>(()=> this._user());
   token = computed(this._token);
+  isAdmin = computed(()=> this._user()?.roles.includes('admin')?? false);
 
 
   login(email: string, password: string):Observable<boolean>{
@@ -54,6 +52,7 @@ export class AuthService {
         this.logout();
         return of(false)
       }
+
       return this.http.get<AuthResponse>(`${baseUrl}/auth/check-status`,
         {
         // headers: {
