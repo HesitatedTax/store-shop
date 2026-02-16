@@ -1,19 +1,26 @@
 import { Product } from '@/products/interfaces/product.interface';
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { ProductCarousel } from "@/products/components/product-carousel/product-carousel";
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormUtils } from '@/utils/form-utils';
+import { FormErrorLabel } from "@/shared/components/form-error-label/form-error-label";
+import { ProductsService } from '@/products/services/products.service';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 
 
 @Component({
   selector: 'product-details',
-  imports: [ProductCarousel, ReactiveFormsModule],
+  imports: [ProductCarousel, ReactiveFormsModule, FormErrorLabel],
   templateUrl: './product-details.html',
 })
 export class ProductDetails implements OnInit{
   product = input.required<Product>()
+  productsService = inject(ProductsService);
   fb= inject(FormBuilder);
+  router = inject(Router);
+  wasSaved = signal(false);
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -39,7 +46,45 @@ export class ProductDetails implements OnInit{
     this.productForm.patchValue({tags: formLike.tags?.join(',') })
   }
 
-  onSubmit(){
-    console.log(this.productForm.value);
+  onSizeClicked(size: string){
+    const currentSizes = this.productForm.value.sizes ?? [];
+
+    if(currentSizes.includes(size)){
+      currentSizes.splice(currentSizes.indexOf(size),1);
+    }else{
+      currentSizes.push(size);
+    }
+    this.productForm.patchValue({sizes: currentSizes});
   }
- }
+
+   async onSubmit(){
+    const isValid = this.productForm.valid;
+    this.productForm.markAllAsTouched();
+    if(!isValid)return;
+    const formValue= this.productForm.value;
+
+    const productLike: Partial<Product>={
+      ...(formValue as any),
+      tags: formValue.tags?.toLowerCase().split(',').map((tag)=>tag.trim())?? [],
+    };
+
+    if(this.product().id === 'new'){
+
+      const product = await firstValueFrom(
+        this.productsService.createProduct(productLike)
+      );
+        this.router.navigate(['/admin/products',product.id]);
+
+    }
+    else{
+
+      await firstValueFrom(
+      this.productsService.updateProduct(this.product().id,  productLike)
+      );
+    }
+    this.wasSaved.set(true);
+    setTimeout(()=>{
+      this.wasSaved.set(false);
+    }, 3000);
+  }
+}
