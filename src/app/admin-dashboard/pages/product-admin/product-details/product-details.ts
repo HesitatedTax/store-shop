@@ -1,12 +1,12 @@
 import { Product } from '@/products/interfaces/product.interface';
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ProductCarousel } from "@/products/components/product-carousel/product-carousel";
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormUtils } from '@/utils/form-utils';
 import { FormErrorLabel } from "@/shared/components/form-error-label/form-error-label";
 import { ProductsService } from '@/products/services/products.service';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, from } from 'rxjs';
 
 
 
@@ -17,10 +17,19 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ProductDetails implements OnInit{
   product = input.required<Product>()
+
   productsService = inject(ProductsService);
   fb= inject(FormBuilder);
   router = inject(Router);
+
   wasSaved = signal(false);
+  tempImages = signal<string[]>([])
+  imageFileList: FileList | undefined = undefined;
+  imagesToCarousel = computed(()=>{
+    const currentProductImages = [...this.product().images, ...this.tempImages()]
+
+    return currentProductImages;
+  })
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -69,9 +78,9 @@ export class ProductDetails implements OnInit{
     };
 
     if(this.product().id === 'new'){
-
+      //Crear producto
       const product = await firstValueFrom(
-        this.productsService.createProduct(productLike)
+        this.productsService.createProduct(productLike, this.imageFileList)
       );
         this.router.navigate(['/admin/products',product.id]);
 
@@ -79,12 +88,24 @@ export class ProductDetails implements OnInit{
     else{
 
       await firstValueFrom(
-      this.productsService.updateProduct(this.product().id,  productLike)
+      this.productsService.updateProduct(this.product().id,  productLike , this.imageFileList)
       );
     }
     this.wasSaved.set(true);
     setTimeout(()=>{
       this.wasSaved.set(false);
     }, 3000);
+  }
+
+  //Images
+  onFilesChanged(event: Event){
+    const fileList = (event.target as HTMLInputElement).files;
+    this.imageFileList = fileList ?? undefined;
+
+    const imageUrls = Array.from( fileList ?? []).map (file=>
+      URL.createObjectURL(file)
+    )
+    this.tempImages.set(imageUrls);
+
   }
 }
