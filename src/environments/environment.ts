@@ -1,3 +1,4 @@
 export const environment = {
-    baseUrl: 'https://backend-store-shop-nest.onrender.com/api'
+  production: true,
+  baseUrl: 'https://backend-store-shop-nest.onrender.com/api'
 };
