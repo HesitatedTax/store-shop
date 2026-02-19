@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Gender, Product, ProductsResponse } from '../interfaces/product.interface';
 import { delay, Observable, of, pipe, tap, map, forkJoin, switchMap } from 'rxjs';
-import { environment } from 'src/environments/environment.development';
+
 import { User } from '@/auth/interfaces/user.interface';
+import { environment } from '@environments/environment';
 
 
 
